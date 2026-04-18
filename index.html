@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STI - ספירה לאחור לאירועי השיא</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sti-blue: #4068D4;
+            --sti-red: #CD4033;
+            --sti-yellow: #F2C344;
+            --sti-green: #55A75B;
+            --sti-dark: #343434;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem;
+            color: var(--sti-dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 1000px;
+            width: 100%;
+            z-index: 10;
+            padding: 0 1rem;
+            flex-grow: 1;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            min-height: 120px;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .word-blue { color: var(--sti-blue); }
+        .word-red { color: var(--sti-red); }
+        .word-green { color: var(--sti-green); }
+
+        .main-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            font-weight: 600;
+            display: inline-block;
+            color: var(--sti-dark);
+        }
+
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background-color: var(--sti-yellow);
+            vertical-align: text-bottom;
+            animation: blink 0.7s infinite;
+            margin-right: 2px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .event-section {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 30px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            perspective: 1000px; 
+        }
+
+        .event-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--sti-dark);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .countdown-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            transform-style: preserve-3d;
+        }
+
+        .time-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem 1rem;
+            min-width: 140px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .time-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .card-days::before { background-color: var(--sti-blue); }
+        .card-hours::before { background-color: var(--sti-red); }
+        .card-minutes::before { background-color: var(--sti-yellow); }
+        .card-seconds::before { background-color: var(--sti-green); }
+
+        .number {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transform: translateZ(30px);
+        }
+
+        .card-days .number { color: var(--sti-blue); }
+        .card-hours .number { color: var(--sti-red); }
+        .card-minutes .number { color: var(--sti-yellow); }
+        .card-seconds .number { color: var(--sti-green); }
+
+        .label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #777;
+            transform: translateZ(20px);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1) translateZ(30px); }
+            50% { transform: scale(1.15) translateZ(40px); text-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            100% { transform: scale(1) translateZ(30px); }
+        }
+        .pop { animation: pop 0.3s ease-out; }
+
+        .started-msg {
+            display: none;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--sti-green);
+            padding: 2rem;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .marquee-wrapper {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.03);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255,255,255,0.8);
+            z-index: 5;
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 1.5rem;
+            width: max-content;
+            animation: scroll-left 40s linear infinite;
+        }
+
+      .marquee-track img {
+    height: 200px; /* הגדלתי קצת את הגובה שייראה מרשים */
+    width: auto; /* זה פותר את הבעיה! הרוחב יתאים את עצמו לתמונה המקורית */
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+        .marquee-track img:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-50% - 0.75rem)); } 
+        }
+
+        .controls-wrapper {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .action-btn {
+            background: #ffffff;
+            color: var(--sti-dark);
+            border: 2px solid var(--sti-dark);
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Rubik';
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-dark {
+            background: var(--sti-dark);
+            color: white;
+            border-color: var(--sti-dark);
+        }
+
+        .btn-dark:hover {
+            background: #000;
+        }
+        /* העיצוב החדש והמגניב של כפתור ה-Hype */
+#hype-btn {
+    background: linear-gradient(135deg, var(--sti-red), var(--sti-yellow));
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(205, 64, 51, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* אפקט הפעימה המזמין */
+    animation: pulse-glow 2s infinite;
+}
+
+/* כשיורדים על הכפתור עם העכבר - הטיל נוטה כלפי מעלה */
+#hype-btn:hover {
+    transform: scale(1.15) translateY(-5px) rotate(15deg);
+    box-shadow: 0 8px 25px rgba(205, 64, 51, 0.6);
+    animation: none; /* עוצר את הפעימה כשעומדים עליו */
+}
+
+/* האנימציה של הזוהר סביב הכפתור */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(242, 195, 68, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(242, 195, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(242, 195, 68, 0); }
+}
+
+        .floating-emoji {
+            position: fixed;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 99;
+            animation: flyUp 2.5s ease-out forwards;
+        }
+
+        @keyframes flyUp {
+            0% { transform: translateY(0) translateX(0) scale(0.5); opacity: 0; }
+            10% { transform: translateY(-20px) translateX(var(--drift)) scale(1.2); opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-80vh) translateX(calc(var(--drift) * 2)) scale(1.5); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .time-card { min-width: 110px; padding: 1.5rem 0.5rem; }
+            .number { font-size: 3rem; }
+            .marquee-track img { height: 120px; width: 200px; }
+        }
+
+        @media (max-width: 480px) {
+            .time-card { min-width: 100px; }
+            .number { font-size: 2.5rem; }
+            .event-section { padding: 1.5rem 1rem; margin-bottom: 2rem; }
+            .countdown-wrapper { gap: 1rem; }
+            .controls-wrapper { bottom: auto; top: 10px; left: 50%; transform: translateX(-50%); width: max-content; }
+            .logo-text { font-size: 1.8rem; margin-top: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo-text">
+                <span class="word-blue">STUDENTS</span> 
+                <span class="word-red">THINK</span> 
+                <span class="word-green">INNOVATION</span>
+            </div>
+            <div>
+                <span id="typewriter-text" class="main-subtitle"></span><span class="typewriter-cursor"></span>
+            </div>
+        </header>
+
+        <section class="event-section">
+            <h2 class="event-title">פרזנטציות אמצע - 5.5</h2>
+            <div id="midterm-countdown" class="countdown-wrapper">
+                <div class="time-card card-days"><span id="m-days" class="number">00</span><span class="label">ימים</span></div>
+                <div class="time-card card-hours"><span id="m-hours" class="number">00</span><span class="label">שעות</span></div>
+                <div class="time-card card-minutes"><span id="m-minutes" class="number">00</span><span class="label">דקות</span></div>
+                <div class="time-card card-seconds"><span id="m-seconds" class="number">00</span><span class="label">שניות</span></div>
+            </div>
+            <div id="m-msg" class="started-msg">הפרזנטציות התחילו! 🚀</div>
+        </section>
+
+        <section class="event-section">
+            <h2 class="event-title">הגמר הגדול - 16.6</h2>
+            <div id="final-countdown" class="countdown-wrapper">
+                <div class="time-card card-days"><span id="f-days" class="number">00</span><span class="label">ימים</span></div>
+                <div class="time-card card-hours"><span id="f-hours" class="number">00</span><span class="label">שעות</span></div>
+                <div class="time-card card-minutes"><span id="f-minutes" class="number">00</span><span class="label">דקות</span></div>
+                <div class="time-card card-seconds"><span id="f-seconds" class="number">00</span><span class="label">שניות</span></div>
+            </div>
+            <div id="f-msg" class="started-msg">הגמר הגדול התחיל! 🏆</div>
+        </section>
+    </div>
+
+    <div class="marquee-wrapper" dir="ltr">
+        <div class="marquee-track">
+            <img src="Images/BkulikovCOM-100.jpg" alt="STI Moment 1">
+            <img src="Images/BkulikovCOM-101.jpg" alt="STI Moment 2">
+            <img src="Images/BkulikovCOM-125.jpg" alt="STI Moment 3">
+            <img src="Images/WhatsApp Image 2026-04-18 at 11.02.40.jpeg" alt="STI Moment 4">
+            
+            <img src="Images/BkulikovCOM-100.jpg" alt="STI Moment 1">
+            <img src="Images/BkulikovCOM-101.jpg" alt="STI Moment 2">
+            <img src="Images/BkulikovCOM-125.jpg" alt="STI Moment 3">
+            <img src="Images/WhatsApp Image 2026-04-18 at 11.02.40.jpeg" alt="STI Moment 4">
+        </div>
+    </div>
+
+    <div class="controls-wrapper">
+        <button id="fullscreen-btn" class="action-btn btn-dark">⛶ מסך מלא</button>
+<button id="hype-btn" title="HYPE!">🚀</button>    </div>
+
+    <script>
+        // מכונת כתיבה (Typewriter)
+        const phrases = [
+            "תחרות היזמות של אונ' בן-גוריון בנגב...",
+            "מחפשים את היוניקורן הבא של ישראל 🦄",
+            "האם לסטארט-אפ שלכם יש את מה שצריך?",
+            "הספירה לאחור לגמר הגדול התחילה!"
+        ];
+        
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typewriterEl = document.getElementById('typewriter-text');
+        
+        function typeWriter() {
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+                typewriterEl.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typewriterEl.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+            
+            let typingSpeed = isDeleting ? 40 : 80;
+            
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                typingSpeed = 2500; 
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typingSpeed = 500; 
+            }
+            
+            setTimeout(typeWriter, typingSpeed);
+        }
+        
+        setTimeout(typeWriter, 1000);
+
+        // אפקט תלת-ממד (3D Tilt) לכרטיסיות
+        const cards = document.querySelectorAll('.time-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -15; 
+                const rotateY = ((x - centerX) / centerX) * 15;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                card.style.boxShadow = `${-rotateY}px ${rotateX}px 20px rgba(0,0,0,0.1)`;
+                card.style.transition = 'none'; 
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                card.style.boxShadow = `0 10px 30px rgba(0, 0, 0, 0.08)`;
+                card.style.transition = 'transform 0.5s ease, box-shadow 0.5s ease'; 
+            });
+        });
+
+        // מערכת הטיימרים
+        const events = [
+            { id: 'm', target: new Date("2026-05-05T10:00:00").getTime(), wrapper: document.getElementById('midterm-countdown'), msg: document.getElementById('m-msg') },
+            { id: 'f', target: new Date("2026-06-16T09:00:00").getTime(), wrapper: document.getElementById('final-countdown'), msg: document.getElementById('f-msg') }
+        ];
+
+        function updateTimers() {
+            const now = new Date().getTime();
+            events.forEach(event => {
+                const distance = event.target - now;
+                if (distance <= 0) {
+                    event.wrapper.style.display = 'none';
+                    event.msg.style.display = 'block';
+                    return;
+                }
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                setElementValue(`${event.id}-days`, d);
+                setElementValue(`${event.id}-hours`, h);
+                setElementValue(`${event.id}-minutes`, m);
+                setElementValue(`${event.id}-seconds`, s);
+            });
+        }
+
+        function setElementValue(id, val) {
+            const el = document.getElementById(id);
+            const formatted = val < 10 ? `0${val}` : val;
+            if (el.innerText !== formatted.toString()) {
+                el.innerText = formatted;
+                el.classList.remove('pop');
+                void el.offsetWidth; 
+                el.classList.add('pop');
+            }
+        }
+
+        setInterval(updateTimers, 1000);
+        updateTimers();
+
+        // כפתור מסך מלא
+        const fsBtn = document.getElementById('fullscreen-btn');
+        fsBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fsBtn.innerHTML = "✖ יציאה ממסך מלא";
+            } else {
+                document.exitFullscreen();
+                fsBtn.innerHTML = "⛶ מסך מלא";
+            }
+        });
+
+        // כפתור ה-HYPE
+        const hypeBtn = document.getElementById('hype-btn');
+        const emojis = ['🚀', '🔥', '💡', '🏆', '🎉', '🌟', '💻', '🦄'];
+        
+        hypeBtn.addEventListener('click', (e) => {
+            hypeBtn.classList.remove('pop');
+            void hypeBtn.offsetWidth;
+            hypeBtn.classList.add('pop');
+
+            const rect = hypeBtn.getBoundingClientRect();
+            const startX = rect.left + (rect.width / 2);
+            const startY = rect.top;
+
+            for(let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'floating-emoji';
+                    el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    
+                    el.style.left = `${startX - 20}px`;
+                    el.style.top = `${startY}px`;
+                    
+                    const drift = (Math.random() * 200 - 100) + 'px';
+                    el.style.setProperty('--drift', drift);
+                    
+                    document.body.appendChild(el);
+                    
+                    setTimeout(() => el.remove(), 2500);
+                }, i * 150); 
+            }
+        });
+    </script>
+</body>
+</html>
