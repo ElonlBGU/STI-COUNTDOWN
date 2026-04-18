@@ -219,9 +219,10 @@
             animation-play-state: paused;
         }
 
-        @keyframes scroll-left {
+      @keyframes scroll-left {
             0% { transform: translateX(0); }
-            100% { transform: translateX(calc(-50% - 0.75rem)); } 
+            /* Changed from negative to positive 50% */
+            100% { transform: translateX(calc(50% + 0.75rem)); } 
         }
 
         .controls-wrapper {
