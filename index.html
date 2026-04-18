@@ -312,11 +312,11 @@
             100% { transform: translateY(-80vh) translateX(calc(var(--drift) * 2)) scale(1.5); opacity: 0; }
         }
 
-        @media (max-width: 768px) {
-            .time-card { min-width: 110px; padding: 1.5rem 0.5rem; }
-            .number { font-size: 3rem; }
-            .marquee-track img { height: 120px; width: 200px; }
-        }
+ @media (max-width: 768px) {
+    .time-card { min-width: 110px; padding: 1.5rem 0.5rem; }
+    .number { font-size: 3rem; }
+    .marquee-track img { height: 120px; width: auto; } /* שינינו פה ל-auto */
+}
 
         @media (max-width: 480px) {
             .time-card { min-width: 100px; }
